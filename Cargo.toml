@@ -1,9 +1,15 @@
-[package]
-name = "RustPlayground"
-version = "0.1.0"
-authors = ["Haruyoshi Toyama <toyama@sansan.com>"]
-edition = "2018"
+#[package]
+#name = "RustPlayground"
+#version = "0.1.0"
+#authors = ["Haruyoshi Toyama <toyama@sansan.com>"]
+#edition = "2018"
+#
+[workspace]
+members = [
+    "main",
+    "officialbook"
+]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+## See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+#
+#[dependencies]
