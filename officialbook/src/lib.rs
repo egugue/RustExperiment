@@ -1,5 +1,8 @@
-pub fn foo() {
-    println!("foo")
+pub mod _7;
+pub mod _7_dir;
+
+pub fn main() {
+    _7_dir::code_in_dir::function_in_dir();
 }
 
 #[cfg(test)]

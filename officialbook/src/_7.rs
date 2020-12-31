@@ -1,4 +1,4 @@
-use crate::officialbook::_7::back_of_house::Appetizer;
+use crate::_7::back_of_house::Appetizer;
 
 /// https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html
 pub mod front_of_house {
@@ -47,12 +47,12 @@ mod back_of_house {
     }
 }
 
-pub use crate::officialbook::_7::front_of_house::hosting;
+pub use crate::_7::front_of_house::hosting;
 
 /// front_of_house and this function are siblings so that no need to make the module public.
 pub fn eat_at_restaurant() {
     // Absolute path
-    crate::officialbook::_7::front_of_house::hosting::add_to_waitlist();
+    crate::_7::front_of_house::hosting::add_to_waitlist();
 
     // Relative path
     front_of_house::hosting::add_to_waitlist();

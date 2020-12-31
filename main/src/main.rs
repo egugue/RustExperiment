@@ -1,4 +1,6 @@
+use officialbook;
+
 fn main() {
     println!("Hello, world!");
-    officialbook::foo();
+    officialbook::main();
 }
