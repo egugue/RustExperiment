@@ -29,6 +29,22 @@ pub fn main() {
     return;
 }
 
+fn dangling_reference() {
+    let r;
+    {
+        let x = 5;
+        r = &x;
+    }
+    // won't compile because x's lifetime is shorter than r so that reference r will be an invalid ref.
+    // println!("r: {}", r);
+
+    let r;
+    let x = 5;
+    r = &x;
+    // can compile because r and x are the same lifetime
+    println!("r: {}", r);
+}
+
 // fn longest(x: &str, y: &str) -> &str {
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() {
