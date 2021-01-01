@@ -1,5 +1,29 @@
 pub fn main() {
     dbg!();
+    dangling_reference();
+    lifetime_check();
+}
+
+fn dangling_reference() {
+    println!("--- dangling_reference ---");
+
+    let r;
+    {
+        let x = 5;
+        r = &x;
+    }
+    // won't compile because x's lifetime is shorter than r so that reference r will be an invalid ref.
+    // println!("r: {}", r);
+
+    let r;
+    let x = 5;
+    r = &x;
+    // can compile because r and x are the same lifetime
+    println!("r: {}", r);
+}
+
+fn lifetime_check() {
+    println!("--- lifetime check ---");
 
     let arg1 = format!("aaa");
     let arg2 = format!("bbb");
@@ -27,22 +51,6 @@ pub fn main() {
     // can compile because each inner_arg is created with string literals which can live during running this program.
     dbg!(outer_longest);
     return;
-}
-
-fn dangling_reference() {
-    let r;
-    {
-        let x = 5;
-        r = &x;
-    }
-    // won't compile because x's lifetime is shorter than r so that reference r will be an invalid ref.
-    // println!("r: {}", r);
-
-    let r;
-    let x = 5;
-    r = &x;
-    // can compile because r and x are the same lifetime
-    println!("r: {}", r);
 }
 
 // fn longest(x: &str, y: &str) -> &str {
