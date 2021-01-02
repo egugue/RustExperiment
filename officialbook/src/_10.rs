@@ -22,7 +22,7 @@ fn dangling_reference() {
     println!("r: {}", r);
 }
 
-fn lifetime_check() {
+fn lifetime_check<'a>() {
     println!("--- lifetime check ---");
 
     let arg1 = format!("aaa");
@@ -53,6 +53,12 @@ fn lifetime_check() {
     return;
 }
 
+/// The compiler cannot figure out the lifetimes of the args and the returned reference.
+/// A dangling reference occurs if the compiler compiles this code in the above situation.
+/// Borrow Checker must prevent it.
+/// Therefore we must annotate Lifetime to tell Rust that each reference lives at least as long as lifetime 'a.
+///
+/// Lifetime 'a is equal to the smaller of the lifetimes of x and y.
 // fn longest(x: &str, y: &str) -> &str {
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     if x.len() > y.len() {
