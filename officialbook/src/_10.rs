@@ -68,6 +68,30 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
     }
 }
 
+/// This can compile.
+/// `y` does not have any relationship with `x` or the returned reference.
+///
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#thinking-in-terms-of-lifetimes
+fn longest_without_lifetime_annotation_on_y<'a>(x: &'a str, y: &str) -> &'a str {
+    x
+}
+
+/// This cannot compile.
+/// The reason is that `result` is dropped at the end of the function whereas the returned reference to `result` lives longer
+/// If Rust can compile it, the pointer will be a dangling reference.
+/// Therefore Rust disallow code like this to prevent it.
+///
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#thinking-in-terms-of-lifetimes
+// fn longest_cannot_compile<'a>(x: &str, y: &str) -> &'a str {
+//     let result = String::from("really long string");
+//     result.as_str()
+// }
+
+/// This can compile because the return value is moved, not borrowed.
+fn longest_can_compile(x: &str, y: &str) -> String {
+    String::from("really long string")
+}
+
 fn longest_string(x: String, y: String) -> String {
     if x.len() < y.len() {
         x
