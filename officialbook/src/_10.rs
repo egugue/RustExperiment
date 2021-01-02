@@ -4,6 +4,7 @@ pub fn main() {
     lifetime_check();
 }
 
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#preventing-dangling-references-with-lifetimes
 fn dangling_reference() {
     println!("--- dangling_reference ---");
 
@@ -22,6 +23,7 @@ fn dangling_reference() {
     println!("r: {}", r);
 }
 
+/// This function is to to understand lifetime concept.
 fn lifetime_check<'a>() {
     println!("--- lifetime check ---");
 
