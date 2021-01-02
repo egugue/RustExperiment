@@ -2,6 +2,7 @@ pub fn main() {
     dbg!();
     dangling_reference();
     lifetime_check();
+    lifetime_annotations_in_struct_definitions();
 }
 
 /// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#preventing-dangling-references-with-lifetimes
@@ -92,6 +93,18 @@ fn longest_without_lifetime_annotation_on_y<'a>(x: &'a str, y: &str) -> &'a str 
 /// This can compile because the return value is moved, not borrowed.
 fn longest_can_compile(x: &str, y: &str) -> String {
     String::from("really long string")
+}
+
+/// The Compiler applies the first and second rules and knows to enable to treat the function as `first_word_with_lifetime_annotations`.
+///
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#lifetime-elision
+fn first_word_without_lifetime_annotation(s: &str) -> &str {
+   s
+}
+
+#[allow(clippy::needless_lifetimes)]
+fn first_word_with_lifetime_annotations<'a>(s: &'a str) -> &'a str {
+   s
 }
 
 fn longest_string(x: String, y: String) -> String {
