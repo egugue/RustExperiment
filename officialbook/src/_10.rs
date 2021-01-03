@@ -95,6 +95,32 @@ fn longest_can_compile(x: &str, y: &str) -> String {
     String::from("really long string")
 }
 
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+/// This function can compile because the novel and the same lifetime.
+fn lifetime_annotations_in_struct_definitions() {
+    let novel = "novel1, novel2".to_string();
+    let first_sentence: &str = novel.split('.').next().expect("Could not find a '.'");
+    let i = ImportantExcerpt {
+        part: first_sentence
+    };
+}
+
+/// This function cannot compile.
+/// The novel is owned by the function.
+/// But it returns the reference, which means the returned reference tries to live longer than the lifetime of the novel.
+// fn lifetime_annotations_in_struct_definitions_a<'a>() -> ImportantExcerpt<'a> {
+//     let novel = "novel1, novel2".to_string();
+//     let first_sentence: &str = novel.split('.').next().expect("Could not find a '.'");
+//     let i = ImportantExcerpt {
+//         part: first_sentence
+//     };
+//     i
+// }
+
+
 /// The Compiler applies the first and second rules and knows to enable to treat the function as `first_word_with_lifetime_annotations`.
 ///
 /// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#lifetime-elision
