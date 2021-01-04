@@ -125,12 +125,31 @@ fn lifetime_annotations_in_struct_definitions() {
 ///
 /// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#lifetime-elision
 fn first_word_without_lifetime_annotation(s: &str) -> &str {
-   s
+    s
 }
 
 #[allow(clippy::needless_lifetimes)]
 fn first_word_with_lifetime_annotations<'a>(s: &'a str) -> &'a str {
-   s
+    s
+}
+
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#lifetime-annotations-in-method-definitions
+impl<'a> ImportantExcerpt<'a> {
+    fn level(&self) -> i32 {
+        3
+    }
+
+    fn announce_and_return_part(&self, announcement: &str) -> &str {
+        println!("Attention please: {}", announcement);
+        self.part
+    }
+
+    // This cannot compile.
+    // The value referenced by the returned value is owned by the function.
+    // But the lifetime of the returned reference is the same as &self (lifetime elision rule 3).
+    // fn try_to_return_reference_to_string_owned_by_function(&self) -> &str {
+    //     String::from("foo").as_str()
+    // }
 }
 
 fn longest_string(x: String, y: String) -> String {
