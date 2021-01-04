@@ -3,6 +3,7 @@ pub fn main() {
     dangling_reference();
     lifetime_check();
     lifetime_annotations_in_struct_definitions();
+    longest_with_an_announcement("xxx", "yyy", "displayable");
 }
 
 /// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#preventing-dangling-references-with-lifetimes
@@ -150,6 +151,22 @@ impl<'a> ImportantExcerpt<'a> {
     // fn try_to_return_reference_to_string_owned_by_function(&self) -> &str {
     //     String::from("foo").as_str()
     // }
+}
+
+/// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#generic-type-parameters-trait-bounds-and-lifetimes-together
+fn longest_with_an_announcement<'a, T>(
+    x: &'a str,
+    y: &'a str,
+    ann: T,
+) -> &'a str
+    where T: std::fmt::Display,
+{
+    println!("Announcement! {}", ann);
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
 }
 
 fn longest_string(x: String, y: String) -> String {
