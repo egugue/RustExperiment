@@ -7,7 +7,8 @@ pub fn main() {
     let simulated_user_specified_value = 10;
     let simulated_random_number = 7;
     // generate_workout_1(simulated_user_specified_value, simulated_random_number);
-    generate_workout_2(simulated_user_specified_value, simulated_random_number);
+    // generate_workout_2(simulated_user_specified_value, simulated_random_number);
+    generate_workout_3(simulated_user_specified_value, simulated_random_number);
 }
 
 fn closure_can_catch_outer_values() {
@@ -94,4 +95,64 @@ fn infer_signature() {
     closure("a");
     // cannot compile because the compiler inferred that the arg type and the return type are &str.
     // closure(1);
+}
+
+/// https://doc.rust-lang.org/book/ch13-01-closures.html#storing-closures-using-generic-parameters-and-the-fn-traits
+struct Cacher<T>
+    where T: Fn(u32) -> u32
+{
+    calculation: T,
+    value: Option<u32>,
+}
+
+impl<T> Cacher<T>
+    where T: Fn(u32) -> u32
+{
+    fn new(calculation: T) -> Self {
+        Self {
+            calculation,
+            value: None,
+        }
+    }
+
+    fn value(&mut self, arg: u32) -> u32 {
+        match self.value {
+            None => {
+                let v = (self.calculation)(arg);
+                self.value = Some(v);
+                v
+            }
+            Some(v) => v
+        }
+    }
+}
+
+fn generate_workout_3(intensity: u32, random_number: u32) {
+    utils::println_function_name!();
+
+    let mut expensive_closure = Cacher::new(|num| {
+        println!("calculating slowly...");
+        thread::sleep(Duration::from_secs(2));
+        num
+    });
+
+    if intensity < 25 {
+        println!(
+            "Today, do {} pushups!",
+            expensive_closure.value(intensity)
+        );
+        println!(
+            "Next, do {} situps!",
+            expensive_closure.value(intensity)
+        );
+    } else {
+        if random_number == 3 {
+            println!("Take a break today! Remember to stay hydrated!");
+        } else {
+            println!(
+                "Today, run for {} minutes!",
+                simulated_expensive_calculation(intensity)
+            );
+        }
+    }
 }
