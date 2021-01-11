@@ -1,5 +1,3 @@
-use crate::_7::back_of_house::Appetizer;
-
 /// https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html
 pub mod front_of_house {
     struct Order {
