@@ -43,3 +43,35 @@ fn generate_workout_1(intensity: u32, random_number: u32) {
         }
     }
 }
+
+/// https://doc.rust-lang.org/book/ch13-01-closures.html#refactoring-with-closures-to-store-code
+fn generate_workout_2(intensity: u32, random_number: u32) {
+    utils::println_function_name!();
+
+    let expensive_closure = |num| {
+        println!("calculating slowly...");
+        thread::sleep(Duration::from_secs(2));
+        num
+    };
+
+    if intensity < 25 {
+        let count = expensive_closure(intensity);
+        println!(
+            "Today, do {} pushups!",
+            count
+        );
+        println!(
+            "Next, do {} situps!",
+            count
+        );
+    } else {
+        if random_number == 3 {
+            println!("Take a break today! Remember to stay hydrated!");
+        } else {
+            println!(
+                "Today, run for {} minutes!",
+                simulated_expensive_calculation(intensity)
+            );
+        }
+    }
+}
