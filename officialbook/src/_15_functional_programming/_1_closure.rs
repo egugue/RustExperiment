@@ -75,3 +75,23 @@ fn generate_workout_2(intensity: u32, random_number: u32) {
         }
     }
 }
+
+/// a variety of how to define a closure
+/// https://doc.rust-lang.org/book/ch13-01-closures.html#closure-type-inference-and-annotation
+fn how_to_define_closure(x: u32) -> u32 {
+    let add_one = |x: u32| -> u32 { x + 1 };
+    let closure = |x: u32| { x + 1 };
+    // let closure = |x| -> u32  { x + 1 }; // error[E0282]: type annotations needed
+    let closure = || -> u32 { 1 };
+    let closure = || { 1 };
+    let closure = || 1;
+    x + 1
+}
+
+/// https://doc.rust-lang.org/book/ch13-01-closures.html#closure-type-inference-and-annotation
+fn infer_signature() {
+    let closure = |x| x;
+    closure("a");
+    // cannot compile because the compiler inferred that the arg type and the return type are &str.
+    // closure(1);
+}
