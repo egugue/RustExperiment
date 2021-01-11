@@ -18,13 +18,15 @@ macro_rules! function {
 #[macro_export]
 macro_rules! println_function_name {
     () => {{
-        println!("-- {}", $crate::function!())
+        println!("----- fn: {} -----", $crate::function!())
     }}
 }
 
 #[macro_export]
 macro_rules! println_file_name {
     () => {{
-        println!("----- {} -----", std::file!());
+        println!("----------------------------------------------------------------");
+        println!("----- File: {} -----", std::file!());
+        println!("------------------------------=---------------------------------");
     }}
 }
