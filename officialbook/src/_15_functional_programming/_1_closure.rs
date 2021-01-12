@@ -1,5 +1,6 @@
 use std::thread;
 use std::time::Duration;
+use std::fmt::Display;
 
 pub fn main() {
     utils::println_file_name!();
@@ -9,12 +10,8 @@ pub fn main() {
     // generate_workout_1(simulated_user_specified_value, simulated_random_number);
     // generate_workout_2(simulated_user_specified_value, simulated_random_number);
     generate_workout_3(simulated_user_specified_value, simulated_random_number);
-}
-
-fn closure_can_catch_outer_values() {
-    let value = 1;
-    let closure = || value;
-    println!("closure can catch outer value: {}", closure());
+    fn_traits();
+    fn_traits_with_arg();
 }
 
 fn simulated_expensive_calculation(intensity: u32) -> u32 {
@@ -154,5 +151,106 @@ fn generate_workout_3(intensity: u32, random_number: u32) {
                 simulated_expensive_calculation(intensity)
             );
         }
+    }
+}
+
+/// https://doc.rust-lang.org/book/ch13-01-closures.html#capturing-the-environment-with-closures
+fn closure_can_catch_outer_values() {
+    let value = 1;
+    let closure = || value;
+    println!("closure can catch outer value: {}", closure());
+
+    fn function_cannot_catch_outer_values() {
+        // cannot compile
+        // println!("{}", value)
+    }
+}
+
+/// The variety of fn traits
+fn fn_traits() {
+    utils::println_function_name!();
+
+    fn fn_once<F>(func: F) where F: FnOnce() -> String {
+        println!("FnOnce {}", func());
+        // invoking twice cannot compile
+        // println!("FnOnce {}", func());
+    }
+    fn fn_<F>(func: F) where F: Fn() -> String {
+        println!("Fn  {}", func());
+    }
+    fn fn_mut<F>(mut func: F) where F: FnMut() -> String {
+        println!("FnMut  {}", func());
+        println!("FnMut  {}", func());
+    }
+
+    let mut mut_s = "".to_string();
+    fn_once(|| {
+        mut_s.push('1');
+        format!("mut_s = {}", mut_s)
+    });
+    fn_(|| {
+        // cannot compile because Fn receives immutable references.
+        // mut_s.push('2');
+        format!("mut_s = {}", mut_s)
+    });
+    fn_mut(|| {
+        mut_s.push('3');
+        format!("mut_s = {}", mut_s)
+    });
+}
+
+/// The variety of fn traits which take an arg.
+fn fn_traits_with_arg() {
+    utils::println_function_name!();
+
+    fn fn_once<F>(func: F) where F: FnOnce(String) -> String {
+        let s = "FnOnce: ".to_string();
+        println!("{}", func(s));
+        // println!("FnOnce {}", func()); // invoking twice cannot compile
+        // println!("{}", s); // cannot compile because s moved
+    }
+    fn fn_<F>(func: F) where F: Fn(String) -> String {
+        let s = "Fn: ".to_string();
+        println!("{}", func(s));
+        // println!("{}", s); cannot compile because s moved
+    }
+    fn fn_mut<F>(mut func: F) where F: FnMut(&mut String) -> &String {
+        let mut arg = "FnMut: ".to_string();
+        println!("{}", func(&mut arg));
+        println!("{}", func(&mut arg));
+    }
+
+    fn_once(|mut x| {
+        x.push('a');
+        x
+    });
+
+    fn_(|s| s);
+
+    fn_mut(|mut s| {
+        s.push('a');
+        s
+    });
+}
+
+/// move keyword makes captured values move
+fn move_keyword_closure() {
+    {
+        let x = vec![1, 2, 3];
+        let equal_to_x = move |z| z == x;
+        // println!("can't use x here: {:?}", x);
+        let y = vec![1, 2, 3];
+        assert!(equal_to_x(y));
+    }
+
+    {
+        fn fn_<F>(func: F) where F: Fn() -> bool { func(); }
+
+        let s = "to move".to_string();
+        fn_(|| { s == "".to_string() });
+        println!("s = {}", s);
+
+        fn_(move || { s == "".to_string() });
+        // println!("s = {}", s); // cannot compile because s moved
     }
 }
