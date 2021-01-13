@@ -1,6 +1,5 @@
 use std::thread;
 use std::time::Duration;
-use std::fmt::Display;
 
 pub fn main() {
     utils::println_file_name!();
@@ -227,7 +226,7 @@ fn fn_traits_with_arg() {
 
     fn_(|s| s);
 
-    fn_mut(|mut s| {
+    fn_mut(|s| {
         s.push('a');
         s
     });
