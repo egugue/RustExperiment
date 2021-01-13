@@ -5,6 +5,7 @@ pub fn main() {
     iter_methods();
 }
 
+/// each iterator adapter calls in the order of definition because iterators are lazy.
 fn calling_order() {
     utils::println_function_name!();
 
