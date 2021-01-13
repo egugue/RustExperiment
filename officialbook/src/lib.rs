@@ -2,9 +2,9 @@
 #![allow(unused_variables)]
 #![allow(unused_assignments)]
 
-pub mod _7;
+pub mod _7_package_crate_module;
 pub mod _7_dir;
-pub mod _10;
+pub mod _10_generic_type_traits_lifetimes;
 pub mod _15_functional_programming;
 
 pub fn main() {
