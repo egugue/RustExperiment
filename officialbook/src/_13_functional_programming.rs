@@ -1,4 +1,4 @@
-pub mod _1_closure;
+mod _1_closure;
 mod _2_iterator;
 
 pub fn main() {
