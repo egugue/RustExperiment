@@ -3,6 +3,7 @@ pub fn main() {
     calling_order();
     iterator_demonstration();
     iter_methods();
+    closure_capturing_environment();
 }
 
 /// each iterator adapter calls in the order of definition because iterators are lazy.
@@ -46,7 +47,7 @@ fn iter_methods() {
     let vec = vec!["a".to_string()];
     let mut iter = vec.into_iter();
     assert_eq!(iter.next(), Some("a".to_string()));
-     // cannot compile because vec moved to iter due to into_iter call
+    // cannot compile because vec moved to iter due to into_iter call
     // assert_eq!(vec, vec!["a".to_string()]);
 
     // define as mut to call iter_mut
@@ -54,4 +55,14 @@ fn iter_methods() {
     let mut iter = vec.iter_mut();
     iter.next().unwrap().push('b');
     assert_eq!(vec, vec!["ab"]);
+}
+
+/// https://doc.rust-lang.org/book/ch13-02-iterators.html#using-closures-that-capture-their-environment
+fn closure_capturing_environment() {
+    utils::println_function_name!();
+    let nums = vec![1, 2, 3, 4, 5];
+    let condition = 2;
+    let nums: Vec<_> = nums.into_iter().filter(|x| x % condition == 0)
+        .collect();
+    assert_eq!(nums, vec![2, 4])
 }
