@@ -4,6 +4,7 @@ pub fn main() {
     iterator_demonstration();
     iter_methods();
     closure_capturing_environment();
+    counter::check_iterator_behavior();
 }
 
 /// each iterator adapter calls in the order of definition because iterators are lazy.
@@ -65,4 +66,49 @@ fn closure_capturing_environment() {
     let nums: Vec<_> = nums.into_iter().filter(|x| x % condition == 0)
         .collect();
     assert_eq!(nums, vec![2, 4])
+}
+
+mod counter {
+    struct Counter {
+        count: u32,
+    }
+
+    impl Counter {
+        fn new() -> Counter {
+            Counter { count: 0 }
+        }
+    }
+
+    impl Iterator for Counter {
+        type Item = u32;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            if self.count < 5 {
+                self.count += 1;
+                Some(self.count)
+            } else {
+                None
+            }
+        }
+    }
+
+    pub fn check_iterator_behavior() {
+        let mut counter = Counter::new();
+        assert_eq!(counter.next(), Some(1));
+        assert_eq!(counter.next(), Some(2));
+        assert_eq!(counter.next(), Some(3));
+        assert_eq!(counter.next(), Some(4));
+        assert_eq!(counter.next(), Some(5));
+        assert_eq!(counter.next(), None);
+
+        // some operators can be used because Iterator has default methods.
+        let sum: u32 = Counter::new().zip(Counter::new().skip(2))
+            .map(|(a, b)| {
+                println!("{}, {}", a, b);
+                a + b
+            })
+            .sum();
+        // (1 + 3) + (2 + 4) + (3 + 5)
+        assert_eq!(sum, 18);
+    }
 }
