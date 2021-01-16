@@ -2,6 +2,7 @@ pub fn main() {
     utils::println_file_name!();
     box_stores_on_heap();
     recursive_type::main();
+    dereference_operator();
 }
 
 /// https://doc.rust-lang.org/book/ch15-01-box.html#using-a-boxt-to-store-data-on-the-heap
@@ -52,4 +53,17 @@ mod recursive_type {
 
         println!("const list = {:?}", list);
     }
+}
+
+fn dereference_operator() {
+    utils::println_function_name!();
+    let x: i32 = 5;
+    let y: &i32 = &x;
+    assert_eq!(x, *y);
+    // assert_eq!(x, y); // cannot compile x(i32) and y(&i32) are different types.
+
+    // Box can be used like a reference.
+    let x: i32 = 5;
+    let y: Box<i32> = Box::new(x);
+    assert_eq!(x, *y);
 }
