@@ -3,6 +3,7 @@ pub fn main() {
     box_stores_on_heap();
     recursive_type::main();
     dereference_operator();
+    my_smart_pointer::main();
 }
 
 /// https://doc.rust-lang.org/book/ch15-01-box.html#using-a-boxt-to-store-data-on-the-heap
@@ -66,4 +67,40 @@ fn dereference_operator() {
     let x: i32 = 5;
     let y: Box<i32> = Box::new(x);
     assert_eq!(x, *y);
+}
+
+mod my_smart_pointer {
+    use std::ops::Deref;
+
+    /// unlike Box<T>, MyBox<T> does not store data on the heap.
+    struct MyBox<T>(T);
+
+    impl <T> MyBox<T> {
+        fn new(x: T) -> Self {
+            Self(x)
+        }
+    }
+
+    impl <T> Deref for MyBox<T> {
+        type Target = T;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    pub fn main() {
+        utils::println_function_name!();
+        let x = 5;
+        let y = MyBox::new(x);
+
+        // MyBox can be dereferenced because MyBox implements Deref.
+        // assert_eq!(x, *y);
+
+        // The above code is equivalent to this.
+        assert_eq!(x, *(y.deref()));
+
+        // deref returns a reference because we don't want take ownership of the data.
+        let deref: &i32 = y.deref();
+    }
 }
