@@ -45,12 +45,12 @@ mod back_of_house {
     }
 }
 
-pub use crate::_7_package_crate_module::front_of_house::hosting;
+pub use crate::_07_package_crate_module::front_of_house::hosting;
 
 /// front_of_house and this function are siblings so that no need to make the module public.
 pub fn eat_at_restaurant() {
     // Absolute path
-    crate::_7_package_crate_module::front_of_house::hosting::add_to_waitlist();
+    crate::_07_package_crate_module::front_of_house::hosting::add_to_waitlist();
 
     // Relative path
     front_of_house::hosting::add_to_waitlist();
