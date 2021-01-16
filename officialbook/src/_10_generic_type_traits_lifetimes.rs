@@ -83,7 +83,7 @@ fn longest_without_lifetime_annotation_on_y<'a>(x: &'a str, y: &str) -> &'a str 
 /// This cannot compile.
 /// The reason is that `result` is dropped at the end of the function whereas the returned reference to `result` lives longer.
 /// If Rust can compile it, the pointer will be a dangling reference.
-/// Therefore Rust disallow code like this to prevent it.
+/// Therefore Rust disallows code like this to prevent it.
 ///
 /// https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html#thinking-in-terms-of-lifetimes
 // fn longest_cannot_compile<'a>(x: &str, y: &str) -> &'a str {
