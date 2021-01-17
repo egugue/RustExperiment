@@ -90,17 +90,38 @@ mod my_smart_pointer {
     }
 
     pub fn main() {
+        like_reference();
+        implicit_deref_coercions();
+    }
+
+    fn like_reference() {
         utils::println_function_name!();
         let x = 5;
         let y = MyBox::new(x);
 
         // MyBox can be dereferenced because MyBox implements Deref.
-        // assert_eq!(x, *y);
+        assert_eq!(x, *y);
 
         // The above code is equivalent to this.
         assert_eq!(x, *(y.deref()));
 
         // deref returns a reference because we don't want take ownership of the data.
         let deref: &i32 = y.deref();
+    }
+
+    fn implicit_deref_coercions() {
+        fn println_str(str: &str) {
+            println!("this is {}", str)
+        }
+
+        let s = MyBox::new("mybox".to_string());
+
+        // deref coercion makes &MyBox<String> to be treated as &str.
+        // &MyBox<String> --deref--> &String --deref--> &str
+        println_str(&s);
+        println_str(s.deref().deref());
+
+        // if Rus doesn't have deref coercion feature, the below must be passed in.
+        let s: &str = &(*s)[..];
     }
 }
