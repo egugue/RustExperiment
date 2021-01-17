@@ -70,18 +70,18 @@ fn dereference_operator() {
 }
 
 mod my_smart_pointer {
-    use std::ops::Deref;
+    use std::ops::{Deref, DerefMut};
 
     /// unlike Box<T>, MyBox<T> does not store data on the heap.
     struct MyBox<T>(T);
 
-    impl <T> MyBox<T> {
+    impl<T> MyBox<T> {
         fn new(x: T) -> Self {
             Self(x)
         }
     }
 
-    impl <T> Deref for MyBox<T> {
+    impl<T> Deref for MyBox<T> {
         type Target = T;
 
         fn deref(&self) -> &Self::Target {
@@ -92,6 +92,7 @@ mod my_smart_pointer {
     pub fn main() {
         like_reference();
         implicit_deref_coercions();
+        deref_coercion_rules();
     }
 
     fn like_reference() {
@@ -123,5 +124,57 @@ mod my_smart_pointer {
 
         // if Rus doesn't have deref coercion feature, the below must be passed in.
         let s: &str = &(*s)[..];
+    }
+
+    struct MutBox<T>(T);
+
+    impl<T> Deref for MutBox<T> {
+        type Target = T;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    impl<T> DerefMut for MutBox<T> {
+        fn deref_mut(&mut self) -> &mut Self::Target {
+            &mut self.0
+        }
+    }
+
+    // https://doc.rust-lang.org/book/ch15-02-deref.html#how-deref-coercion-interacts-with-mutability
+    fn deref_coercion_rules() {
+        // MyBox
+        {
+            let m: MyBox<String> = MyBox::new("a".to_string());
+            let s: &String = &m;
+
+            // cannot compile because MyBox does not implement DerefMut
+            let mut m: MyBox<String> = MyBox::new("a".to_string());
+            // let s: &mut String = &mut m;
+
+            let mut m: MyBox<String> = MyBox::new("a".to_string());
+            let s: &String = &m;
+        }
+
+        // MutBox
+        {
+            let m: MutBox<String> = MutBox("a".to_string());
+            let s: &String = &m;
+
+            // can compile because MutBox implements DerefMut
+            let mut m: MutBox<String> = MutBox("a".to_string());
+            let s: &mut String = &mut m;
+
+            let mut m: MyBox<String> = MyBox::new("a".to_string());
+            let s: &String = &m;
+
+            // cannot compile. The official books says
+            // > Rust will also coerce a mutable reference to an immutable one.
+            // > But the reverse is not possible: immutable references will never coerce to mutable references.
+            let m: MutBox<String> = MutBox("a".to_string());
+            // let s: &mut String = &mut m;
+        }
+
     }
 }
