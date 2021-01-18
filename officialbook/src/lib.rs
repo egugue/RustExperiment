@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 #![allow(unused_assignments)]
+#![allow(unused_mut)]
 
 pub mod _07_package_crate_module;
 pub mod _07_dir;
