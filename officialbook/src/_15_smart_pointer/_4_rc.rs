@@ -1,9 +1,11 @@
 use std::rc::Rc;
+use std::cell::RefMut;
 
 pub fn main() {
     utils::println_file_name!();
     rc_can_be_connected_with_others();
-    prints_number_of_pointers()
+    prints_number_of_pointers();
+    mutate_variable();
 }
 
 enum InvalidMultiConnectedList {
@@ -55,4 +57,30 @@ fn prints_number_of_pointers() {
         println!("count after creating c = {}", Rc::strong_count(&a));
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+}
+
+/// This is my trial code which is not listed on the official book.
+fn mutate_variable() {
+    utils::println_function_name!();
+    {
+        let mut rc = Rc::new("a".to_string());
+        *Rc::get_mut(&mut rc).unwrap() = "b".to_string();
+        *Rc::get_mut(&mut rc).unwrap() = "c".to_string();
+        println!("rc = {}", *rc);
+        assert_eq!(*rc, "c")
+    }
+    {
+        // this cannot compile because Rust doesn't allow mutiple mutable reference.
+        // let mut rc = Rc::new("a".to_string());
+        // let mut1 = Rc::get_mut(&mut rc);
+        // let mut2 = Rc::get_mut(&mut rc);
+        // *mut1.unwrap() = "b".to_string();
+        // *mut2.unwrap() = "c".to_string();
+        // 73 |         let mut1 = Rc::get_mut(&mut rc);
+        //    |                                ------- first mutable borrow occurs here
+        // 74 |         let mut2 = Rc::get_mut(&mut rc);
+        //    |                                ^^^^^^^ second mutable borrow occurs here
+        // 75 |         *mut1.unwrap() = "b".to_string();
+        //    |          ---- first borrow later used here
+    }
 }
