@@ -1,5 +1,9 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 pub fn main() {
     utils::println_file_name!();
+    multiple_owners_of_mutable_data();
 }
 
 fn immutable_data_cannot_borrow_as_mutable() {
@@ -66,7 +70,7 @@ mod mock {
         impl Messenger for MockMessenger {
             fn send(&self, msg: &str) {
                 // cannot compile because Messenger trait requires immutable self reference.
-                // This situation can solve using RefCell.
+                // This situation can be solve using RefCell.
                 // self.sent_messages.push(msg.to_string())
             }
         }
@@ -119,4 +123,27 @@ mod mock {
             limit_tracker.set_value(80);
         }
     }
+}
+
+#[derive(Debug)]
+enum List {
+    Cons(Rc<RefCell<i32>>, Rc<List>),
+    Nil,
+}
+
+/// Using Rc and RefCell can have multiple owners of mutable data.
+fn multiple_owners_of_mutable_data() {
+    use self::List::{Cons, Nil};
+    utils::println_function_name!();
+
+    let value = Rc::new(RefCell::new(5));
+    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {:?}", a);
+    println!("b after = {:?}", b);
+    println!("c after = {:?}", c);
 }
