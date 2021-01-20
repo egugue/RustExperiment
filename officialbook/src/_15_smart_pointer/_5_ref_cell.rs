@@ -57,7 +57,7 @@ mod mock {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use std::cell::RefCell;
+        use std::cell::{RefCell, RefMut};
 
         struct MockMessenger {
             sent_messages: Vec<String>,
@@ -75,14 +75,6 @@ mod mock {
             sent_messages: RefCell<Vec<String>>,
         }
 
-        impl MockMessenger2 {
-            fn new() -> MockMessenger2 {
-                MockMessenger2 {
-                    sent_messages: RefCell::new(vec![]),
-                }
-            }
-        }
-
         impl Messenger for MockMessenger2 {
             fn send(&self, msg: &str) {
                 // RefCell enables the hold immutable reference to borrow as mutable.
@@ -92,12 +84,39 @@ mod mock {
 
         #[test]
         fn it_sends_an_over_75_percent_warning_message() {
-            let mock_messenger = MockMessenger2::new();
+            let mock_messenger = MockMessenger2 {
+                sent_messages: RefCell::new(vec![]),
+            };
             let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
 
             limit_tracker.set_value(80);
 
             assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
+        }
+
+        /// https://doc.rust-lang.org/book/ch15-05-interior-mutability.html#keeping-track-of-borrows-at-runtime-with-refcellt
+        struct MockMessenger3 {
+            sent_messages: RefCell<Vec<String>>,
+        }
+
+        impl Messenger for MockMessenger3 {
+            fn send(&self, msg: &str) {
+                let mut ref_mut1: RefMut<_> = self.sent_messages.borrow_mut();
+                // the below will panic because sent_message already borrows a mutable reference.
+                let mut ref_mut2: RefMut<_> = self.sent_messages.borrow_mut();
+            }
+        }
+
+        /// should panic instead of compile error
+        /// because Rust checks Borrowing rules at runtime if using RefMut.
+        #[test]
+        #[should_panic]
+        fn panic_if_multiple_mutable_references() {
+            let mock_messenger = MockMessenger3 {
+                sent_messages: RefCell::new(vec![]),
+            };
+            let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
+            limit_tracker.set_value(80);
         }
     }
 }
