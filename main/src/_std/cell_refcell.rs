@@ -19,7 +19,7 @@ mod mut_smart_pointers {
     fn mutable_reference() {
         utils::println_function_name!();
 
-        // a &mut value can change the actual value it references to.
+        // a &mut value can change the inner value it references to.
         {
             let mut x: i32 = 1;
             let x_ref: &mut i32 = &mut x;
@@ -54,7 +54,7 @@ mod mut_smart_pointers {
             // let mut x: Rc<mut i32> = Rc::new(1);
         }
 
-        // Instead, Rc::get_mut can be used to change the actual value.
+        // Instead, Rc::get_mut can be used to change the inner value.
         {
             let mut rc: Rc<i32> = Rc::new(1);
             match Rc::get_mut(&mut rc) {
@@ -64,12 +64,13 @@ mod mut_smart_pointers {
             assert_eq!(*rc, 2);
         }
 
-        // But Rc::get_mut can be used only in the same situation as using a normal variable.
+        // But Rc::get_mut can be used only in the same situation as using a regular variable.
+        // see https://doc.rust-lang.org/nomicon/references.html for details.
         {
             let mut rc: Rc<i32> = Rc::new(1);
-            let immutable_reference = Rc::clone(&rc);
+            let shared_reference = Rc::clone(&rc);
             let mutable_reference_option: Option<&mut i32> = Rc::get_mut(&mut rc);
-            // Because there is a immutable reference, a mutable reference cannot be created.
+            // Because there is a shared reference, a mutable reference cannot be created.
             assert_eq!(mutable_reference_option, None);
         }
 
@@ -86,7 +87,7 @@ mod mut_smart_pointers {
             assert_eq!(cell.get(), 2);
         }
 
-        // Rc<Cell> can change the value it references to even if there are some immutable references to it.
+        // Rc<Cell> can change the value it references to even if there are some shared references to it.
         {
             let rc_cell: Rc<Cell<i32>> = Rc::new(Cell::new(1));
             let reference1 = Rc::clone(&rc_cell);
