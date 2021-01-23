@@ -69,7 +69,7 @@ fn mutate_variable() {
         assert_eq!(*rc, "c")
     }
     {
-        // this cannot compile because Rust doesn't allow mutiple mutable reference.
+        // this cannot compile because Rust doesn't allow multiple mutable reference.
         // let mut rc = Rc::new("a".to_string());
         // let mut1 = Rc::get_mut(&mut rc);
         // let mut2 = Rc::get_mut(&mut rc);

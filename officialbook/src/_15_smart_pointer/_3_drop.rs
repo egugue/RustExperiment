@@ -20,9 +20,15 @@ impl Drop for CustomSmartPointer {
 /// variables is dropped in the reverse order (guess because of the stack...)
 fn check_drop() {
     utils::println_function_name!();
-    let a = CustomSmartPointer { data: "1".to_string() };
-    let b = CustomSmartPointer { data: "2".to_string() };
-    let c = CustomSmartPointer { data: "3".to_string() };
+    let a = CustomSmartPointer {
+        data: "1".to_string(),
+    };
+    let b = CustomSmartPointer {
+        data: "2".to_string(),
+    };
+    let c = CustomSmartPointer {
+        data: "3".to_string(),
+    };
     println!("CustomSmartPointers are created");
     // and prints the below.
     // about to drop: CustomSmartPointer { data: "3" }
@@ -36,7 +42,9 @@ fn check_drop() {
 /// then a double free error occurs.
 fn invoking_drop_manually() {
     utils::println_function_name!();
-    let a = CustomSmartPointer { data: "1".to_string() };
+    let a = CustomSmartPointer {
+        data: "1".to_string(),
+    };
     // a.drop();
     //   ^^^^
     //   |
