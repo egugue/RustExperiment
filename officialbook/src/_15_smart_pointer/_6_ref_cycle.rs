@@ -154,7 +154,7 @@ mod why_wrapping_refcell {
         let reference_to_leaf = Rc::clone(&leaf);
         let mut branch = Rc::new(Node::new(5, Weak::new(), vec![reference_to_leaf]));
 
-        // Rc cannot change the value directly because Rc doesn't implement DerefMut.
+        // Rc cannot change the inner value directly because Rc doesn't implement DerefMut.
         // Therefore both code cannot compile.
         {
             // leaf.parent = Rc::downgrade(&branch);
@@ -162,7 +162,7 @@ mod why_wrapping_refcell {
             // *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
         }
 
-        // Using get_mut method can change the value directly.
+        // Using Rc::get_mut method can change the inner value directly.
         // But `leaf` is already referenced by `branch`.
         // As a result, Rc::get_mut() will fail because of Rust borrowing rule.
         if false {
