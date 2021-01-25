@@ -36,7 +36,7 @@ fn ownership_can_prevent_unexpected_error() {
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let val = "hi".to_string();
-        tx.send(val);
+        tx.send(val).unwrap();
 
         // cannot compile because `val` was moved when invoking send method.
         // println!("val is {} on worker thread", val);
@@ -54,7 +54,7 @@ fn multiple_values() {
         let values = vec!["a", "b", "c"];
         for v in values {
             println!("sending {}", v);
-            tx.send(v);
+            tx.send(v).unwrap();
             thread::sleep(Duration::from_millis(300));
         }
         println!("wait 1 second");
