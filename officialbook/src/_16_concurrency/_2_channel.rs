@@ -5,6 +5,7 @@ use std::time::Duration;
 pub fn main() {
     utils::println_file_name!();
     channel();
+    // ownership_can_prevent_unexpected_error();
 }
 
 fn channel() {
@@ -24,4 +25,21 @@ fn channel() {
     println!("before receive");
     let result = rx.recv();
     println!("after receive. value = {}", result.unwrap());
+}
+
+/// Rust's ownership system can prevent an unexpected error which is common in multi-thread programming.
+fn ownership_can_prevent_unexpected_error() {
+    utils::println_function_name!();
+
+    let (tx, rx) = mpsc::channel();
+    thread::spawn(move || {
+        let val = "hi".to_string();
+        tx.send(val);
+
+        // cannot compile because `val` was moved when invoking send method.
+        // println!("val is {} on worker thread", val);
+    });
+
+    let received = rx.recv().unwrap();
+    println!("val is {} on main thread", received);
 }
