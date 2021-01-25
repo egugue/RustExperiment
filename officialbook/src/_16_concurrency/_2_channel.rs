@@ -7,6 +7,7 @@ pub fn main() {
     channel();
     // ownership_can_prevent_unexpected_error();
     multiple_values();
+    multiple_producers();
 }
 
 fn channel() {
@@ -65,4 +66,33 @@ fn multiple_values() {
         println!("received {}", v);
     }
     println!("all values are received.");
+}
+
+fn multiple_producers() {
+    utils::println_function_name!();
+
+    let (tx, rx) = mpsc::channel();
+    let tx1 = mpsc::Sender::clone(&tx);
+    thread::spawn(move || {
+        let values = vec!["a", "b", "c"];
+        for x in values {
+            tx1.send(x).unwrap();
+            thread::sleep(Duration::from_millis(300));
+        }
+    });
+
+    // If a copied sender is used in the second thread, the original sender `tx` never drops until it goes out scope.
+    // This means the rx for-loop continues endlessly.
+    // let tx2 = mpsc::Sender::clone(&tx);
+    thread::spawn(move || {
+        let values = vec!["1", "2", "3"];
+        for x in values {
+            tx.send(x).unwrap();
+            thread::sleep(Duration::from_millis(10));
+        }
+    });
+
+    for x in rx {
+        println!("received {}", x);
+    }
 }
