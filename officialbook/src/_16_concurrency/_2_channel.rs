@@ -6,6 +6,7 @@ pub fn main() {
     utils::println_file_name!();
     channel();
     // ownership_can_prevent_unexpected_error();
+    multiple_values();
 }
 
 fn channel() {
@@ -42,4 +43,26 @@ fn ownership_can_prevent_unexpected_error() {
 
     let received = rx.recv().unwrap();
     println!("val is {} on main thread", received);
+}
+
+fn multiple_values() {
+    utils::println_function_name!();
+
+    let (tx, rx) = mpsc::channel();
+    thread::spawn(move || {
+        let values = vec!["a", "b", "c"];
+        for v in values {
+            println!("sending {}", v);
+            tx.send(v);
+            thread::sleep(Duration::from_millis(300));
+        }
+        println!("wait 1 second");
+        thread::sleep(Duration::from_secs(1));
+        println!("worker thread has been executed.");
+    });
+
+    for v in rx {
+        println!("received {}", v);
+    }
+    println!("all values are received.");
 }
