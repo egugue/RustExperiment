@@ -44,6 +44,8 @@ fn sync_trait() {
     let pointer: &i32 = &1;
     check_sync(pointer);
 
+    check_sync(STATIC_POINTER);
+
     let string: String = String::from("str");
     check_sync(string);
 
