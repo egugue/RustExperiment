@@ -8,7 +8,9 @@ pub fn main() {
     let thread_pool = ThreadPool::new(4);
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     println!("Started");
-    for stream in listener.incoming() {
+
+    // take only 2 requests to demonstrate graceful shutdown.
+    for stream in listener.incoming().take(2) {
         let stream = stream.unwrap();
         thread_pool.execute(move || {
             handle_connection(stream);
@@ -40,9 +42,14 @@ fn handle_connection(mut stream: TcpStream) {
 
 type Job = Box<dyn FnOnce() + Send + 'static>;
 
+enum Message {
+    NewJob(Job),
+    Terminate,
+}
+
 struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Job>,
+    sender: mpsc::Sender<Message>,
 }
 
 impl ThreadPool {
@@ -76,18 +83,40 @@ impl ThreadPool {
         F: FnOnce() + Send + 'static,
     {
         let job = Box::new(f);
-        self.sender.send(job).unwrap();
+        self.sender.send(Message::NewJob(job)).unwrap();
     }
 }
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
+        // Need to separate for-loop to prevent dead-locks
+        // In a situation that worker1 is handling request and worker2 took a Terminate message,
+        // ThreadPool will try to call worker1.thread.join but it never succeed
+        // because worker1 didn't yet receive a Terminate message.
+        //
+        // for worker in &mut self.workers {
+        //     self.sender.send(Message::Terminate).unwrap();
+        //     if let Some(thread) = worker.thread.take() {
+        //         thread.join().unwrap();
+        //     }
+        // }
+
+        println!("Sending terminate message to all workers.");
+        for _ in &self.workers {
+            self.sender.send(Message::Terminate).unwrap();
+        }
+
+        println!("Shutting down all workers.");
+
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
             if let Some(thread) = worker.thread.take() {
+                // Worker.thread needs to be wrapped in Option because join() needs to `mut self`
                 thread.join().unwrap();
             }
         }
+
+        println!("Finish Shutting down all workers.");
     }
 }
 
@@ -97,13 +126,20 @@ struct Worker {
 }
 
 impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
         let thread = thread::spawn(move || loop {
             println!("Worker {} waiting for another job.", id);
-            let job = receiver.lock().unwrap().recv().unwrap();
-            println!("Worker {} got a job; executing.", id);
-            job();
-            println!("Worker {} finish the job.", id);
+            match receiver.lock().unwrap().recv().unwrap() {
+                Message::NewJob(job) => {
+                    println!("Worker {} got a job; executing.", id);
+                    job();
+                    println!("Worker {} finish the job.", id);
+                }
+                Message::Terminate => {
+                    println!("Terminate thread: {}", id);
+                    break;
+                }
+            }
         });
         Worker {
             id,
