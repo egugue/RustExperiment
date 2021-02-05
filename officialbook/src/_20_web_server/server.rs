@@ -1,5 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::{mpsc, Arc, Mutex};
 use std::time::Duration;
 use std::{fs, thread};
 
@@ -18,7 +19,7 @@ pub fn main() {
 fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
-    println!("\n{}\n", String::from_utf8_lossy(&buffer));
+    // println!("\n{}\n", String::from_utf8_lossy(&buffer));
 
     let get_index = b"GET / HTTP/1.1\r\n";
     let get_sleep = b"GET /sleep HTTP/1.1\r\n";
@@ -37,7 +38,12 @@ fn handle_connection(mut stream: TcpStream) {
     stream.flush().unwrap();
 }
 
-struct ThreadPool;
+type Job = Box<dyn FnOnce() + Send + 'static>;
+
+struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: mpsc::Sender<Job>,
+}
 
 impl ThreadPool {
     /// Create a new ThreadPool
@@ -45,10 +51,19 @@ impl ThreadPool {
     /// The size is the number of threads in the pool.
     ///
     /// # Panics
-    /// The functin will panic if size is zero.
+    /// The function will panic if size is zero.
     fn new(size: usize) -> ThreadPool {
         assert!(size > 0);
-        ThreadPool
+
+        let (sender, receiver) = mpsc::channel();
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut workers = Vec::with_capacity(size);
+        for id in 0..size {
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        }
+
+        ThreadPool { workers, sender }
     }
 
     /// FnOnce trait bound: the closure will be executed once in a thread.
@@ -60,5 +75,25 @@ impl ThreadPool {
     where
         F: FnOnce() + Send + 'static,
     {
+        let job = Box::new(f);
+        self.sender.send(job).unwrap();
+    }
+}
+
+struct Worker {
+    id: usize,
+    thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        let thread = thread::spawn(move || loop {
+            println!("Worker {} waiting for another job.", id);
+            let job = receiver.lock().unwrap().recv().unwrap();
+            println!("Worker {} got a job; executing.", id);
+            job();
+            println!("Worker {} finish the job.", id);
+        });
+        Worker { id, thread }
     }
 }
