@@ -5,8 +5,8 @@ use std::time::Duration;
 use std::{fs, thread};
 
 pub fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let thread_pool = ThreadPool::new(4);
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     println!("Started");
     for stream in listener.incoming() {
         let stream = stream.unwrap();
@@ -80,9 +80,20 @@ impl ThreadPool {
     }
 }
 
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in &mut self.workers {
+            println!("Shutting down worker {}", worker.id);
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
+
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
@@ -94,6 +105,9 @@ impl Worker {
             job();
             println!("Worker {} finish the job.", id);
         });
-        Worker { id, thread }
+        Worker {
+            id,
+            thread: Some(thread),
+        }
     }
 }
