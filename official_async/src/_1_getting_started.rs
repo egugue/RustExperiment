@@ -3,8 +3,8 @@
 #![allow(unused_assignments)]
 #![allow(unused_mut)]
 
+use futures;
 use futures::executor::block_on;
-use futures::future;
 use std::thread;
 use std::time::Duration;
 
@@ -33,11 +33,11 @@ fn execute_two_tasks() {
 async fn execute_two_tasks2() {
     async fn execute_task(id: u8) {
         println!("function starts running: {}", id);
-        thread::sleep(Duration::from_millis(300));
+        async_std::task::sleep(Duration::from_millis(500)).await;
         println!("function finished running: {}", id);
     }
 
     let future1 = execute_task(1);
     let future2 = execute_task(2);
-    future::join(future1, future2).await;
+    futures::join!(future1, future2);
 }
