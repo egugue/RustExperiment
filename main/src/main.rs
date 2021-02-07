@@ -5,5 +5,6 @@
 mod _std;
 
 fn main() {
-    thebook::main();
+    // thebook::main();
+    official_async::main();
 }

@@ -4,9 +4,14 @@
 name = "main"
 version = "0.1.0"
 dependencies = [
+ "official_async",
  "thebook",
  "utils",
 ]
+
+[[package]]
+name = "official_async"
+version = "0.1.0"
 
 [[package]]
 name = "thebook"
