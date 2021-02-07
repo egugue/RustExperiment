@@ -1,3 +1,5 @@
+mod _1_getting_started;
+
 pub fn main() {
-    println!("official async")
+    _1_getting_started::main();
 }
