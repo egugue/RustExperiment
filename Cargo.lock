@@ -4,12 +4,12 @@
 name = "main"
 version = "0.1.0"
 dependencies = [
- "officialbook",
+ "thebook",
  "utils",
 ]
 
 [[package]]
-name = "officialbook"
+name = "thebook"
 version = "0.1.0"
 dependencies = [
  "utils",

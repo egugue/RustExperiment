@@ -2,6 +2,5 @@
 mod _std;
 
 fn main() {
-    _std::main();
-    officialbook::main();
+    thebook::main();
 }
