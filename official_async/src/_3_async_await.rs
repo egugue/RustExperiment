@@ -8,6 +8,7 @@ pub fn main() {
     block_on(future_is_lazy());
     block_on(reference_in_async_block());
     block_on(const_reference());
+    block_on(async_block_and_move());
 }
 
 async fn async_fn() -> u8 {
@@ -87,4 +88,31 @@ const CONST_X: u8 = 1;
 fn const_reference() -> impl Future<Output = u8> {
     utils::println_function_name!();
     borrow_x(&CONST_X)
+}
+
+async fn async_block_and_move() {
+    println!("------ async_block_and_move -----");
+
+    let keyword = "keyword".to_string();
+    let future1 = async {
+        println!("first print: {}", keyword);
+    };
+    let future2 = async {
+        println!("second print {}", keyword);
+    };
+    futures::join!(future1, future2);
+
+    let move_future1 = async move {
+        println!("move first print: {}", keyword);
+    };
+
+    // this cannot compile because `keyword` moved to use move_future1
+    // let move_future2 = async move {
+    //     println!("move second print: {}", keyword);
+    // };
+
+    // this cannot compile because `keyword` moved to use move_future1
+    // futures::join!(future1, move_future1);
+
+    // futures::join!(move_future1);
 }
