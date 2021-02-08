@@ -1,14 +1,13 @@
 use futures::executor::block_on;
 use futures::Future;
-use std::thread;
-use std::time::Duration;
 
 pub fn main() {
     utils::println_file_name!();
     block_on(async_block());
     async_block_in_sync_fn();
-    future_is_lazy();
     block_on(future_is_lazy());
+    block_on(reference_in_async_block());
+    block_on(const_reference());
 }
 
 async fn async_fn() -> u8 {
@@ -61,4 +60,31 @@ async fn future_is_lazy() {
     // prints one and two
     one().await;
     two().await;
+}
+
+async fn borrow_x(x: &u8) -> u8 {
+    *x
+}
+
+async fn borrow_x_expanded<'a>(x: &'a u8) -> impl Future<Output = u8> + 'a {
+    async move { *x }
+}
+
+fn reference_in_async_block() -> impl Future<Output = u8> {
+    utils::println_function_name!();
+
+    // let x = 1;
+    // borrow_x(&x); // ERROR: `x` does not live long enough
+
+    async {
+        let x: u8 = 1;
+        borrow_x(&x).await
+    }
+}
+
+const CONST_X: u8 = 1;
+
+fn const_reference() -> impl Future<Output = u8> {
+    utils::println_function_name!();
+    borrow_x(&CONST_X)
 }
