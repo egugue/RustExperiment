@@ -3,5 +3,6 @@ members = [
     "main",
     "thebook",
     "official_async",
+    "regular_commands",
     "utils"
 ]
