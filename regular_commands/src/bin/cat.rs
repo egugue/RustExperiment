@@ -1,14 +1,23 @@
-use std::borrow::Borrow;
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{Error, Read, Write};
+use std::process::exit;
 use std::{env, io};
 
+//TODO: display multiple files
 fn main() {
-    // let args: Vec<String> = env::args().collect();
-    // let path = args.get(1).expect("Specify at least one file");
-    // let mut f = File::open(path).expect(format!("{}: No such file", path).as_str());
-
-    write_to_stdout(io::stdin());
+    let args: Vec<String> = env::args().collect();
+    if let Some(path) = args.get(1) {
+        match File::open(path) {
+            Ok(f) => write_to_stdout(f),
+            Err(_) => {
+                io::stderr()
+                    .write_all(format!("cat: {} No such file or directory\n", path).as_ref());
+                exit(1);
+            }
+        }
+    } else {
+        write_to_stdout(io::stdin());
+    }
 }
 
 fn write_to_stdout<T: Read>(mut reader: T) {
@@ -19,6 +28,6 @@ fn write_to_stdout<T: Read>(mut reader: T) {
         if size == 0 {
             break;
         }
-        stdout.write(&buffer[..size]).expect("failed to write");
+        stdout.write_all(&buffer[..size]).expect("failed to write");
     }
 }
