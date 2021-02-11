@@ -3,10 +3,14 @@ use std::io::{Error, Read, Write};
 use std::process::exit;
 use std::{env, io};
 
-//TODO: display multiple files
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if let Some(path) = args.get(1) {
+    if args.len() <= 1 {
+        write_to_stdout(io::stdin());
+        return;
+    }
+
+    for path in &args[1..] {
         match File::open(path) {
             Ok(f) => write_to_stdout(f),
             Err(_) => {
@@ -15,8 +19,6 @@ fn main() {
                 exit(1);
             }
         }
-    } else {
-        write_to_stdout(io::stdin());
     }
 }
 
