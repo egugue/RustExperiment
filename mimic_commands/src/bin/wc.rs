@@ -28,7 +28,7 @@ fn main() {
         }
         Err(_) => {
             io::stderr()
-                .write_all(format!("wc: {}: No such file or directory\n", path).as_ref())
+                .write_all(format!("wc: {}: open: No such file or directory\n", path).as_ref())
                 .ok();
             exit(1);
         }

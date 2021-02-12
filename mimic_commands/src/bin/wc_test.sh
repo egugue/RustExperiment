@@ -9,5 +9,5 @@ pwd
 
 cargo build --release --bin wc
 my_wc="./target/release/wc"
-#command diff <($my_wc invalid_file 2>&1) <(cat invalid_file 2>&1)
+command diff <($my_wc invalid_file 2>&1) <(wc invalid_file 2>&1)
 command diff <($my_wc Cargo.lock) <(wc Cargo.lock)
