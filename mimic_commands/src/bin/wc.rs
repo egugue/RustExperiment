@@ -15,12 +15,12 @@ fn main() {
     let path = &args[1];
     match File::open(path) {
         Ok(f) => {
-            let (line_count, byte_count, word_count) = count(f);
+            let count = count(f);
             io::stdout()
                 .write_all(
                     format!(
                         "{:>8} {:>7} {:>7} {}\n",
-                        line_count, word_count, byte_count, path
+                        count.lines, count.words, count.bytes, path
                     )
                     .as_ref(),
                 )
@@ -35,7 +35,13 @@ fn main() {
     }
 }
 
-fn count(mut f: File) -> (usize, usize, usize) {
+struct Count {
+    bytes: usize,
+    lines: usize,
+    words: usize,
+}
+
+fn count(mut f: File) -> Count {
     let mut buffer = [0; 1024 * 4];
     let mut byte_count: usize = 0;
     let mut line_count: usize = 0;
@@ -66,5 +72,9 @@ fn count(mut f: File) -> (usize, usize, usize) {
         }
     }
 
-    (line_count, byte_count, word_count)
+    Count {
+        bytes: byte_count,
+        lines: line_count,
+        words: word_count,
+    }
 }
