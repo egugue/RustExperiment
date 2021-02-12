@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Error, Read, Write};
+use std::io::{Read, Write};
 use std::process::exit;
 use std::{env, io};
 
@@ -15,7 +15,8 @@ fn main() {
             Ok(f) => write_to_stdout(f),
             Err(_) => {
                 io::stderr()
-                    .write_all(format!("cat: {} No such file or directory\n", path).as_ref());
+                    .write_all(format!("cat: {}: No such file or directory\n", path).as_ref())
+                    .ok();
                 exit(1);
             }
         }
