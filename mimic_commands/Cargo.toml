@@ -1,5 +1,5 @@
 [package]
-name = "regular_commands"
+name = "mimic_commands"
 version = "0.1.0"
 authors = ["Haruyoshi Toyama <duane0728@gmail.com>"]
 edition = "2018"
