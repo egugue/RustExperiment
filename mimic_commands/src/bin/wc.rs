@@ -1,37 +1,42 @@
 use std::fs::File;
 use std::io::{Read, Write};
+use std::ops::AddAssign;
 use std::process::exit;
 use std::{env, io};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
+    if args.len() <= 1 {
         io::stderr()
-            .write_all(format!("Specify only one file\n").as_ref())
+            .write_all(format!("Specify at least one file\n").as_ref())
             .ok();
         exit(1);
     }
 
-    let path = &args[1];
-    match File::open(path) {
-        Ok(f) => {
-            let count = count(f);
-            io::stdout()
-                .write_all(
-                    format!(
-                        "{:>8} {:>7} {:>7} {}\n",
-                        count.lines, count.words, count.bytes, path
-                    )
-                    .as_ref(),
-                )
-                .ok();
+    let mut is_error = false;
+    let mut total = Count::new();
+    for path in &args[1..] {
+        match File::open(path) {
+            Ok(f) => {
+                let count = count(f);
+                print_count(path, &count);
+                total += count;
+            }
+            Err(_) => {
+                io::stderr()
+                    .write_all(format!("wc: {}: open: No such file or directory\n", path).as_ref())
+                    .ok();
+                is_error = true;
+            }
         }
-        Err(_) => {
-            io::stderr()
-                .write_all(format!("wc: {}: open: No such file or directory\n", path).as_ref())
-                .ok();
-            exit(1);
-        }
+    }
+
+    if args.len() >= 3 {
+        print_count("total", &total);
+    }
+
+    if is_error {
+        exit(1);
     }
 }
 
@@ -39,6 +44,36 @@ struct Count {
     bytes: usize,
     lines: usize,
     words: usize,
+}
+
+impl Count {
+    fn new() -> Self {
+        Self {
+            bytes: 0,
+            lines: 0,
+            words: 0,
+        }
+    }
+}
+
+impl AddAssign for Count {
+    fn add_assign(&mut self, rhs: Self) {
+        self.bytes += rhs.bytes;
+        self.lines += rhs.lines;
+        self.words += rhs.words;
+    }
+}
+
+fn print_count(path: &str, count: &Count) {
+    io::stdout()
+        .write_all(
+            format!(
+                "{:>8} {:>7} {:>7} {}\n",
+                count.lines, count.words, count.bytes, path
+            )
+            .as_ref(),
+        )
+        .ok();
 }
 
 fn count(mut f: File) -> Count {
