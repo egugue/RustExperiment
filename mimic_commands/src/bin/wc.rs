@@ -15,9 +15,9 @@ fn main() {
     let path = &args[1];
     match File::open(path) {
         Ok(f) => {
-            let line_count = foo(f);
+            let (line_count, byte_count) = count(f);
             io::stdout()
-                .write_all(format!("     {} {}\n", line_count, path).as_ref())
+                .write_all(format!("{:>8} {:>9} {}\n", line_count, byte_count, path).as_ref())
                 .ok();
         }
         Err(_) => {
@@ -29,8 +29,7 @@ fn main() {
     }
 }
 
-fn foo(mut f: File) -> usize {
-    let mut stdout = io::stdout();
+fn count(mut f: File) -> (usize, usize) {
     let mut buffer = [0; 1024 * 4];
     let mut byte_count: usize = 0;
     let mut line_count: usize = 0;
@@ -42,6 +41,8 @@ fn foo(mut f: File) -> usize {
             break;
         }
 
+        byte_count += size;
+
         for b in &buffer[..size] {
             if *b == b'\n' {
                 line_count += 1;
@@ -49,5 +50,5 @@ fn foo(mut f: File) -> usize {
         }
     }
 
-    line_count
+    (line_count, byte_count)
 }
