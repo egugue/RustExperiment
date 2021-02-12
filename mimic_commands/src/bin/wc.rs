@@ -15,9 +15,15 @@ fn main() {
     let path = &args[1];
     match File::open(path) {
         Ok(f) => {
-            let (line_count, byte_count) = count(f);
+            let (line_count, byte_count, word_count) = count(f);
             io::stdout()
-                .write_all(format!("{:>8} {:>9} {}\n", line_count, byte_count, path).as_ref())
+                .write_all(
+                    format!(
+                        "{:>8} {:>7} {:>7} {}\n",
+                        line_count, word_count, byte_count, path
+                    )
+                    .as_ref(),
+                )
                 .ok();
         }
         Err(_) => {
@@ -29,26 +35,36 @@ fn main() {
     }
 }
 
-fn count(mut f: File) -> (usize, usize) {
+fn count(mut f: File) -> (usize, usize, usize) {
     let mut buffer = [0; 1024 * 4];
     let mut byte_count: usize = 0;
     let mut line_count: usize = 0;
     let mut word_count: usize = 0;
+    let mut in_word = false;
 
     loop {
         let size = f.read(&mut buffer[..]).expect("failed to read");
         if size == 0 {
             break;
         }
-
         byte_count += size;
 
         for b in &buffer[..size] {
-            if *b == b'\n' {
+            let b = *b;
+            if b == b'\n' {
                 line_count += 1;
+            }
+
+            if b == b' ' || b == b'\n' {
+                if in_word {
+                    word_count += 1;
+                }
+                in_word = false;
+            } else {
+                in_word = true;
             }
         }
     }
 
-    (line_count, byte_count)
+    (line_count, byte_count, word_count)
 }
