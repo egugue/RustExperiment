@@ -1,0 +1,1 @@
+A try to mimic regular commands in Rust.
