@@ -6,7 +6,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let max_size = 10;
     if args.len() <= 1 {
-        print_head(io::stdin(), max_size)
+        print_head(io::stdin(), max_size);
+        return;
     }
 
     if args.len() == 2 {
