@@ -8,7 +8,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
         let count = count(io::stdin());
-        print_count(None, &count);
+        print_count("", &count);
         return;
     }
 
@@ -18,7 +18,7 @@ fn main() {
         match File::open(path) {
             Ok(f) => {
                 let count = count(f);
-                print_count(Some(path), &count);
+                print_count(path, &count);
                 total += count;
             }
             Err(_) => {
@@ -31,7 +31,7 @@ fn main() {
     }
 
     if args.len() >= 3 {
-        print_count(Some("total"), &total);
+        print_count("total", &total);
     }
 
     if is_error {
@@ -63,9 +63,9 @@ impl AddAssign for Count {
     }
 }
 
-fn print_count(path: Option<&str>, count: &Count) {
+fn print_count(path: &str, count: &Count) {
     let mut output = format!("{:>8} {:>7} {:>7}", count.lines, count.words, count.bytes);
-    if let Some(path) = path {
+    if !path.is_empty() {
         output += &format!(" {}", path);
     }
     output += "\n";
