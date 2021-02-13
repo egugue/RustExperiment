@@ -7,10 +7,9 @@ use std::{env, io};
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
-        io::stderr()
-            .write_all(format!("Specify at least one file\n").as_ref())
-            .ok();
-        exit(1);
+        let count = count(io::stdin());
+        print_count(None, &count);
+        return;
     }
 
     let mut is_error = false;
@@ -19,7 +18,7 @@ fn main() {
         match File::open(path) {
             Ok(f) => {
                 let count = count(f);
-                print_count(path, &count);
+                print_count(Some(path), &count);
                 total += count;
             }
             Err(_) => {
@@ -32,7 +31,7 @@ fn main() {
     }
 
     if args.len() >= 3 {
-        print_count("total", &total);
+        print_count(Some("total"), &total);
     }
 
     if is_error {
@@ -64,19 +63,17 @@ impl AddAssign for Count {
     }
 }
 
-fn print_count(path: &str, count: &Count) {
-    io::stdout()
-        .write_all(
-            format!(
-                "{:>8} {:>7} {:>7} {}\n",
-                count.lines, count.words, count.bytes, path
-            )
-            .as_ref(),
-        )
-        .ok();
+fn print_count(path: Option<&str>, count: &Count) {
+    let mut output = format!("{:>8} {:>7} {:>7}", count.lines, count.words, count.bytes);
+    if let Some(path) = path {
+        output += &format!(" {}", path);
+    }
+    output += "\n";
+
+    io::stdout().write_all(output.as_ref()).ok();
 }
 
-fn count(mut f: File) -> Count {
+fn count<T: Read>(mut reader: T) -> Count {
     let mut buffer = [0; 1024 * 4];
     let mut byte_count: usize = 0;
     let mut line_count: usize = 0;
@@ -84,7 +81,7 @@ fn count(mut f: File) -> Count {
     let mut in_word = false;
 
     loop {
-        let size = f.read(&mut buffer[..]).expect("failed to read");
+        let size = reader.read(&mut buffer[..]).expect("failed to read");
         if size == 0 {
             break;
         }

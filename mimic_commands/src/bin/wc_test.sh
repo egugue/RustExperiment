@@ -7,7 +7,7 @@ cd "$pj_root_dir"
 
 cargo build --release --bin wc
 my_wc="./target/release/wc"
+command diff <($my_wc < Cargo.lock) <(wc < Cargo.lock)
 command diff <($my_wc invalid_file 2>&1) <(wc invalid_file 2>&1)
 command diff <($my_wc Cargo.lock) <(wc Cargo.lock)
 command diff <($my_wc Cargo.lock Cargo.toml) <(wc Cargo.lock Cargo.toml)
-#command diff <($my_wc Cargo.lock invalid_file) <(wc Cargo.lock invalid_file)
