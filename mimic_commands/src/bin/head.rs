@@ -4,12 +4,30 @@ use std::{env, io};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
+    let max_size = 10;
+    if args.len() <= 1 {
         todo!()
     }
 
-    let path = &args[1];
-    let max_line = 10;
+    if args.len() == 2 {
+        let path = &args[1];
+        print_file_head(path, max_size);
+        return;
+    }
+
+    let mut i = 0;
+    let paths = &args[1..];
+    for path in paths {
+        println!("==> {} <==", path);
+        print_file_head(path, max_size);
+        i += 1;
+        if i != paths.len() {
+            println!()
+        }
+    }
+}
+
+fn print_file_head(path: &str, max_line: usize) {
     match File::open(path) {
         Ok(f) => {
             print_head(f, max_line);
