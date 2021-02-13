@@ -32,7 +32,11 @@ fn print_file_head(path: &str, max_count: usize) {
         Ok(f) => {
             print_head(f, max_count);
         }
-        Err(_) => {}
+        Err(_) => {
+            io::stderr()
+                .write_all(format!("head: {}: No such file or directory\n", path).as_ref())
+                .ok();
+        }
     }
 }
 
