@@ -12,6 +12,7 @@ my_wc="./target/release/wc"
 [ "$($my_wc invalid_file 2>&1)" = "$(wc invalid_file 2>&1)" ]
 [ "$($my_wc Cargo.lock)" = "$(wc Cargo.lock)" ]
 [ "$($my_wc Cargo.lock Cargo.toml)" = "$(wc Cargo.lock Cargo.toml)" ]
+[ "$(echo 'ああaa' | $my_wc)" = "$(echo 'ああaa' | wc)" ]
 
 #command diff <($my_wc < Cargo.lock) <(wc < Cargo.lock)
 #command diff <($my_wc invalid_file 2>&1) <(wc invalid_file 2>&1)
