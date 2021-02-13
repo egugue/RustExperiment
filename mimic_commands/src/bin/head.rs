@@ -6,7 +6,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let max_size = 10;
     if args.len() <= 1 {
-        todo!()
+        print_head(io::stdin(), max_size)
     }
 
     if args.len() == 2 {
@@ -27,16 +27,16 @@ fn main() {
     }
 }
 
-fn print_file_head(path: &str, max_line: usize) {
+fn print_file_head(path: &str, max_count: usize) {
     match File::open(path) {
         Ok(f) => {
-            print_head(f, max_line);
+            print_head(f, max_count);
         }
         Err(_) => {}
     }
 }
 
-fn print_head<T: Read>(mut reader: T, max_line: usize) {
+fn print_head<T: Read>(mut reader: T, max_count: usize) {
     let mut stdout = io::stdout();
     let mut buffer = [0; 1024 * 4];
     let mut line_count = 0;
@@ -52,7 +52,7 @@ fn print_head<T: Read>(mut reader: T, max_line: usize) {
 
             if *b == b'\n' {
                 line_count += 1;
-                if line_count == max_line {
+                if line_count == max_count {
                     break;
                 }
             }
@@ -62,7 +62,7 @@ fn print_head<T: Read>(mut reader: T, max_line: usize) {
             .write_all(&buffer[..print_size])
             .expect("failed to write");
 
-        if line_count == max_line {
+        if line_count == max_count {
             break;
         }
     }

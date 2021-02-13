@@ -8,7 +8,7 @@ cd "$pj_root_dir"
 cargo build --release --bin head
 my_head="./target/release/head"
 
-#[ "$($my_head < Cargo.lock)" = "$(head < Cargo.lock)" ]
+[ "$($my_head < Cargo.lock)" = "$(head < Cargo.lock)" ]
 #[ "$($my_head invalid_file 2>&1)" = "$(head invalid_file 2>&1)" ]
 [ "$($my_head Cargo.lock)" = "$(head Cargo.lock)" ]
 [ "$($my_head Cargo.toml)" = "$(head Cargo.toml)" ]
