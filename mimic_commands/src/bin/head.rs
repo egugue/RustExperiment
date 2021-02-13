@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{Read, Write};
+use std::process::exit;
 use std::{env, io};
 
 fn main() {
@@ -18,25 +19,36 @@ fn main() {
 
     let mut i = 0;
     let paths = &args[1..];
+    let mut error_occurred = false;
     for path in paths {
         println!("==> {} <==", path);
-        print_file_head(path, max_size);
+        let is_succeed = print_file_head(path, max_size);
+        if !is_succeed {
+            error_occurred = true;
+        }
+
         i += 1;
         if i != paths.len() {
             println!()
         }
     }
+
+    if error_occurred {
+        exit(1);
+    }
 }
 
-fn print_file_head(path: &str, max_count: usize) {
+fn print_file_head(path: &str, max_count: usize) -> bool {
     match File::open(path) {
         Ok(f) => {
             print_head(f, max_count);
+            true
         }
         Err(_) => {
             io::stderr()
                 .write_all(format!("head: {}: No such file or directory\n", path).as_ref())
                 .ok();
+            false
         }
     }
 }
