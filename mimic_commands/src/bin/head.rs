@@ -17,17 +17,15 @@ fn main() {
         return;
     }
 
-    let mut i = 0;
     let paths = &args[1..];
     let mut error_occurred = false;
-    for path in paths {
+    for (i, path) in paths.iter().enumerate() {
         println!("==> {} <==", path);
         let is_succeed = print_file_head(path, max_size);
         if !is_succeed {
             error_occurred = true;
         }
 
-        i += 1;
         if i != paths.len() {
             println!()
         }
