@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::{BufReader, BufWriter, Read, Write};
 use std::process::exit;
 use std::{env, io};
 
@@ -41,7 +41,8 @@ fn main() {
 fn print_file_head(path: &str, max_count: usize) -> bool {
     match File::open(path) {
         Ok(f) => {
-            print_head(f, max_count);
+            // print_head(f, max_count);
+            print_head_buf(f, max_count);
             true
         }
         Err(_) => {
@@ -83,4 +84,27 @@ fn print_head<T: Read>(mut reader: T, max_count: usize) {
             break;
         }
     }
+}
+
+/// Using BufReader and BufReader can simplify code while suppressing system calls.
+fn print_head_buf<T: Read>(reader: T, max_count: usize) {
+    let mut reader = BufReader::new(reader);
+    let mut writer = BufWriter::new(io::stdout());
+    let mut one_byte = [0; 1];
+
+    let mut line_count = 1;
+    while line_count <= max_count {
+        let size = reader.read(&mut one_byte).expect("failed to read");
+        if size == 0 {
+            break;
+        }
+
+        let b = one_byte[0];
+        if b == b'\n' {
+            line_count += 1;
+        }
+
+        writer.write_all(&one_byte).expect("failed to write");
+    }
+    writer.flush().expect("failed to write");
 }
