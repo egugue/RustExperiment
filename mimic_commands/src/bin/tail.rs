@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufWriter, Cursor, Read, Seek, SeekFrom, Write};
+use std::io::{BufWriter, Read, Seek, SeekFrom, Write};
 use std::{env, io};
 
 fn main() {
@@ -47,7 +47,7 @@ fn calc_seek_from<T: Read + Seek>(reader: &mut T, max_line: usize, buffer: &mut 
 
         let size = reader.read(&mut buffer[..]).expect("failed to read");
         for b in buffer[..size].iter().rev() {
-            if *b == b'\n' {
+            if *b == b'\n' && read_bytes_count != 0 {
                 read_line_count += 1;
                 if read_line_count > max_line {
                     break;
