@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Seek, SeekFrom, Write};
+use std::process::exit;
 use std::{env, io};
 
 fn main() {
@@ -10,19 +11,45 @@ fn main() {
     }
 
     if args.len() == 2 {
-        let path = &args[1];
-        match File::open(path) {
-            Ok(f) => {
-                print_tail(f, max_line);
-            }
-            Err(_) => {
-                todo!()
-            }
+        let result = print_tail_of_file(&args[1], max_line);
+        if result.is_err() {
+            exit(1);
         }
         return;
     }
 
-    todo!();
+    let paths = &args[1..];
+    let mut error_occurred = false;
+    for (i, path) in paths.iter().enumerate() {
+        println!("==> {} <==", path);
+        let result = print_tail_of_file(path, max_line);
+        if result.is_err() {
+            error_occurred = true;
+        }
+
+        if i != paths.len() - 1 {
+            println!()
+        }
+    }
+
+    if error_occurred {
+        exit(1);
+    }
+}
+
+fn print_tail_of_file(path: &str, max_line: usize) -> Result<(), ()> {
+    match File::open(path) {
+        Ok(f) => {
+            print_tail(f, max_line);
+            Ok(())
+        }
+        Err(_) => {
+            io::stderr()
+                .write_all(format!("tail: {}: No such file or directory\n", path).as_ref())
+                .ok();
+            Err(())
+        }
+    }
 }
 
 fn calc_seek_from<T: Read + Seek>(reader: &mut T, max_line: usize, buffer: &mut [u8]) -> SeekFrom {
