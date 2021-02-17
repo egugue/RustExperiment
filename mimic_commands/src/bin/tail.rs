@@ -7,7 +7,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let max_line = 10;
     if args.len() <= 1 {
-        todo!()
+        panic!("not implemented")
     }
 
     if args.len() == 2 {
