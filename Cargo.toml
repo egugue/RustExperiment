@@ -4,5 +4,6 @@ members = [
     "thebook",
     "official_async",
     "mimic_commands",
-    "utils"
+    "utils",
+    "rusty-mikan",
 ]
